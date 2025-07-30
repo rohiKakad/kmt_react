@@ -3,21 +3,31 @@
 import { useState } from "react";
 import { Login } from "../services/authService";
 import Toast from "./Toast";
+import { useRouter } from "next/navigation";
+import Loader from "./commonLoadder";
 
 export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<{message:string; type: 'success' | 'error' } | null>(null);
 
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoading(true);
     e.preventDefault();
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const res:any = await Login(email, password);
       if(res?.status === 200){
-          setToast({message: res?.data?.message, type: 'success'});
+        localStorage.setItem('Jwt-token', res.data.access_token);
+         router.push("/forms");
+          setToast({message: 'Login Successful', type:'success'});
       }
+      setLoading(false);
     } catch (er:unknown) {
+        setLoading(false);
         if(er instanceof Error){
             setToast({message: 'Failed to login', type:'error'});
         }
@@ -48,12 +58,16 @@ export default function LoginForm() {
           className="w-full p-2 mb-6 border rounded"
           required
         ></input>
+        <div>
+          { loading ? <Loader /> :
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
         >
           Login
         </button>
+}
+        </div>
         {
             toast && (
                 <Toast message={toast.message} type={toast.type} onClose={() =>setToast(null)}></Toast>

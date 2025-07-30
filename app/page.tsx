@@ -1,5 +1,5 @@
-// import Image from "next/image";
 import LoginForm from "./component/loginForm";
+
 
 export default function App() {
   return (
