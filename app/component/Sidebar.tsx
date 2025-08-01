@@ -14,6 +14,7 @@ export default function Sidebar() {
                     <li><a href="/calculator" style={styles.navItem}>Calculators</a></li>
                     <li><a href="/rates" style={styles.navItem}>Rates</a></li>
                     <li><a href="/tables" style={styles.navItem}>tables</a></li>
+                    <li><a href="/create-form" style={styles.navItem}>Create form</a></li>
                 </ul>
             </nav>
         </aside>

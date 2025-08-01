@@ -50,14 +50,14 @@ export default function LoginForm() {
           onChange={(e) => setEmail(e.target.value)}
           className="w-full p-2 mb-4 border rounded"
           required
-        ></input>
+        />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="w-full p-2 mb-6 border rounded"
           required
-        ></input>
+        />
         <div>
           { loading ? <Loader /> :
         <button

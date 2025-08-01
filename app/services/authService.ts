@@ -1,3 +1,4 @@
+"use client"
 import axios from "axios";
 
 const URI = 'http://127.0.0.1:8000';

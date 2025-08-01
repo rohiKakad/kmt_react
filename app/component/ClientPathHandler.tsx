@@ -14,14 +14,6 @@ export default function ClientPathHandler({
   const pathname = usePathname();
   const showLayoutComponents = pathname !== '/';
 
-    // useEffect(()=> {
-    //  setTimeout(() => {
-    //   window.location.href = "/";
-    //   console.log('----in');
-    //  },3000)
-    // //  clearInterval(timeout);
-    // }, []);
-
   return (
     <>
       {showLayoutComponents && <Header />}

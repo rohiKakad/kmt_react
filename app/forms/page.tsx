@@ -1,202 +1,138 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
-import "./Forms.css";
-import Select from "react-select";
-import { postData } from "../services/postService";
 
-type SelectOption = {
-  value: string;
-  label: string;
-};
-type FormDataType = {
+// import { useRouter } from "next/navigation";
+import "./Form.css";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { getData } from "../services/getService";
+import { useRouter } from "next/navigation";
+import Loader from "../component/commonLoadder";
+
+interface formType {
   title: string;
   desc: string;
-  assetSpecialist: string[];
-  assetManager: string[];
-  note: string;
-  isChecked: boolean;
-};
+  assetSpecialist:string[],
+  assetManager:string[],
+  createdOn: string;
+  createdBy: string;
+  status: string;
+  action?: string;
+}
 
-const Fomrs = () => {
-  const [formData, setFormdata] = useState<FormDataType>({
-    title: "",
-    desc: "",
-    assetSpecialist: [],
-    assetManager: [],
-    note: "",
-    isChecked: false,
-  });
-
-  const [isClient, setClient] = useState(false);
-  const [isValidForm, setIsValidForm] = useState(false);
-  const [loadder, setLoadder] = useState(false);
+const Forms = () => {
+  const route = useRouter();
+  const [forms, setFormData] = useState<formType[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setClient(true);
+    const fetchTableData = async () => {
+      try {
+        const res = await getData<formType[]>("forms/get-all-forms");
+        setFormData(res);
+        setLoading(false);
+      } catch (e) {
+        setLoading(false);
+      }
+    };
+
+    fetchTableData();
   }, []);
 
-  const assetSpecialistOptions = ["Chocolate", "Strawberry", "Vanilla"];
-  const assetMangersOptions = ["Chirs", "Randy", "Varma"];
+  const getColorStatus = (status:string) => {
+     switch(status){
+      case 'submitted':
+           return "bg-green-100 text-green-800";
+      case 'save':
+           return "bg-orange-100 text-orange-800";
+      case 'save-draft':
+           return "bg-orange-200 text-orange-900";
+      case 'deleted': 
+           return "bg-red-100 text-red-800";
+      default: return null;
+     }
 
-  const handelSubmit = async(e: React.FormEvent) => {
-    e.preventDefault();
-    if(!isValidForm) return null;
-    try{
-        setLoadder(true);
-        const res = postData(formData);
-        console.log(res);
-    }
-    catch(e){
-        console.log('failed to save', e);
-    }
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-
-    setFormdata({
-      ...formData,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleMultiSelectChange = (
-    selectOption: SelectOption[],
-    type: string
-  ) => {
-    switch (type) {
-      case "specialist":
-        setFormdata({
-          ...formData,
-          assetSpecialist: selectOption.map((option) => option.value),
-        });
-        break;
-      case "manager":
-        setFormdata({
-          ...formData,
-          assetManager: selectOption.map((option) => option.value),
-        });
-        break;
-    }
-  };
-
-  const handleSave = () => {
-    console.log("Saved:", formData);
-  };
-
-  const handleSaveDraft = () => {
-    console.log("Draft Saved:", formData);
-  };
-
-  const validForm = useCallback(() => {
-    return (
-      formData.title.trim() !== "" &&
-      formData.desc.trim() !== "" &&
-      formData.note.trim() !== "" &&
-      formData.assetManager.length > 0 &&
-      formData.assetSpecialist.length > 0 &&
-      formData.isChecked
-    );
-  }, [formData]);
-
-  useEffect(() => {
-    setIsValidForm(validForm());
-  }, [validForm]);
+  }
 
   return (
-    <form onSubmit={handelSubmit} className="form-container">
-      <div className="form-header">
-        <label htmlFor="title">
-          <h1>
-            <strong>Form Details</strong>
-          </h1>
-        </label>
+    <div>
+      <div className="end">
+          <button className="submit-btn" onClick={()=> route.push('/forms/create-form')}>Create form</button>
       </div>
-      <div className="form-row">
-        <div className="left-column">
-          <label htmlFor="title">Title:</label>
-          <input
-            type="text"
-            name="title"
-            id="title"
-            value={formData.title}
-            onChange={handleChange}
-            className="form-input"
-          />
-          <label htmlFor="desc">Descreption:</label>
-          <input
-            type="text"
-            name="desc"
-            id="desc"
-            value={formData.desc}
-            onChange={handleChange}
-            className="form-input"
-          />
-          <label>Asset Specialist:</label>
-          {isClient && (
-            <Select
-              closeMenuOnSelect={false}
-              isMulti
-              options={assetSpecialistOptions.map((item) => ({
-                value: item,
-                label: item,
-              }))}
-              onChange={(selected) =>
-                handleMultiSelectChange(
-                  selected as SelectOption[],
-                  "specialist"
-                )
-              }
-            />
-          )}
-
-          <label>Asset Managers:</label>
-          {isClient && (
-            <Select
-              closeMenuOnSelect={false}
-              isMulti
-              options={assetMangersOptions.map((item) => ({
-                value: item,
-                label: item,
-              }))}
-              onChange={(selected) =>
-                handleMultiSelectChange(selected as SelectOption[], "manager")
-              }
-            />
-          )}
-        </div>
-        <div className="right-column">
-          <label htmlFor="note">Note:</label>
-          <textarea
-            name="note"
-            value={formData.note}
-            onChange={handleChange}
-          ></textarea>
-          <div>
-            <label htmlFor="check">Agree? </label>
-            <input
-              type="checkbox"
-              name="isChecked"
-              checked={formData.isChecked}
-              onChange={handleChange}
-            />
-          </div>
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Forms Table</h2>
+        <div className="overflow-x-auto">
+          <table className="min-w-full border border-gray-300 bg-white">
+          <thead>
+              <tr className="bg-gradient-to-r from-gray-100 to-gray-200 text-left text-sm text-gray-700 uppercase tracking-wider">
+                <th className="p-3 border-b font-semibold">📄 Title</th>
+                <th className="p-3 border-b font-semibold">📝 Form Desc</th>
+                <th className="p-3 border-b font-semibold">👥 Asset Specialist</th>
+                <th className="p-3 border-b font-semibold">👤 Asset Manager</th>
+                <th className="p-3 border-b font-semibold">📅 Created On</th>
+                <th className="p-3 border-b font-semibold">✍️ Created By</th>
+                <th className="p-3 border-b font-semibold">📌 Status</th>
+                <th className="p-3 border-b font-semibold">⚙️ Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+              loading ?  (
+                  <tr>
+                    <td colSpan={8} className="text-center p-4">
+                      <Loader />
+                    </td>
+                  </tr>
+                ) :
+               forms &&
+                forms.map((form, index) => (
+                  <tr key={index}>
+                    <td className="p-2 border-b">{form.title}</td>
+                    <td className="p-2 border-b">{form.desc}</td>
+                    <td className="p-2 border-b">{form.assetSpecialist.join(", ")}</td>
+                    <td className="p-2 border-b">{form.assetManager.join(", ")}</td>
+                    <td className="p-2 border-b">{form.createdOn}</td>
+                    <td className="p-2 border-b">{form.createdBy}</td>
+                    <td
+                      className={`
+                        p-2 border-b
+                      `}
+                    >
+                      <span className={`${getColorStatus(form.status)} px-2 py-1 rounded text-sm font-medium`}>
+                      {form.status}
+                      </span>
+                    </td>
+                    <td className="p-2 border-b">
+                      <div className="flex gap-4">
+                        <button
+                          className="text-blue-600 hover:underline"
+                          aria-label={`Edit ${form.title}`}
+                        >
+                          <FaEdit />
+                        </button>
+                        <button
+                          className="text-blue-600 hover:underline"
+                          aria-label={`Delete ${form.title}`}
+                        >
+                          <FaTrash />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              {
+               !loading && forms.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="text-center p-4">
+                    No records found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
-
-      <div className="button-group">
-        <button type="button" onClick={handleSave} disabled={!isValidForm}>
-          Save
-        </button>
-        <button type="button" onClick={handleSaveDraft} disabled={!isValidForm}>
-          Save Draft
-        </button>
-        <button type="submit" disabled={!isValidForm}>
-          Submit
-        </button>
-      </div>
-    </form>
+    </div>
   );
 };
 
-export default Fomrs;
+export default Forms;
