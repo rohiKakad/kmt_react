@@ -7,6 +7,8 @@ import { useEffect, useState } from "react";
 import { getData } from "../services/getService";
 import { useRouter } from "next/navigation";
 import Loader from "../component/commonLoadder";
+import { useDispatch } from "react-redux";
+import { setRowData } from "../features/form/createSlice";
 
 interface formType {
   title: string;
@@ -23,6 +25,7 @@ const Forms = () => {
   const route = useRouter();
   const [forms, setFormData] = useState<formType[]>([]);
   const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchTableData = async () => {
@@ -53,10 +56,19 @@ const Forms = () => {
 
   }
 
+  const onEditHandle = (row: formType) => {
+    dispatch(setRowData(row));   
+    route.push('/forms/create-form') 
+  }
+  const handleCreateForm = () => {
+    dispatch(setRowData(null));
+    route.push('/forms/create-form');
+  }
+
   return (
     <div>
       <div className="end">
-          <button className="submit-btn" onClick={()=> route.push('/forms/create-form')}>Create form</button>
+          <button className="submit-btn" onClick={handleCreateForm}>Create form</button>
       </div>
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Forms Table</h2>
@@ -106,6 +118,7 @@ const Forms = () => {
                         <button
                           className="text-blue-600 hover:underline"
                           aria-label={`Edit ${form.title}`}
+                          onClick={()=> onEditHandle(form)}
                         >
                           <FaEdit />
                         </button>

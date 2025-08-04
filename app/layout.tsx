@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import ClientPathHandler from '../app/component/ClientPathHandler';
+import ReduxProvider from "./reduxProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,9 +30,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-         <ClientPathHandler >
+        <ReduxProvider>
+         <ClientPathHandler  >
           {children}  </ClientPathHandler >
-
+          </ReduxProvider>
       </body>
     </html>
   );
